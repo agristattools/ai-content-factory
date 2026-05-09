@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+env/
+
+# Secrets
+.env
+
+# Project Data
+data/assets/*
+data/temp/*
+logs/*
+output/*
+!data/assets/.gitkeep
+!logs/.gitkeep
+!output/.gitkeep
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Large Media
+*.mp4
+*.mp3
+*.wav

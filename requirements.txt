@@ -1,0 +1,26 @@
+# AI CONTENT FACTORY - Python 3.14 Compatible
+streamlit
+plotly
+groq
+google-generativeai
+openai
+edge-tts
+pydub
+moviepy
+opencv-python
+pillow
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
+requests
+beautifulsoup4
+yt-dlp
+googletrans==4.0.0rc1
+langdetect
+APScheduler
+schedule
+python-dotenv
+loguru
+rich
+tqdm
+pydantic
