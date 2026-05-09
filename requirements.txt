@@ -2,6 +2,8 @@
 streamlit
 plotly
 groq
+groq>=1.0.0
+groq==1.2.0
 google-generativeai
 openai
 edge-tts
