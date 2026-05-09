@@ -8,7 +8,11 @@ import os
 import json
 from typing import Dict, List
 from loguru import logger
-from groq import Groq
+try:
+    from groq import Groq
+except ImportError:
+    import groq
+    Groq = groq.Groq
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,7 +25,6 @@ class ScriptGenerator:
         self.language = language
         self.niche = niche
         
-        # Language-specific writing styles
         self.style_guides = {
             "english": {
                 "tone": "friendly expert",
@@ -46,19 +49,13 @@ class ScriptGenerator:
         }
     
     def generate_script(self, topic: Dict, duration_minutes: int = 8) -> Dict:
-        """Generate a complete video script from a trending topic"""
-        
         style = self.style_guides.get(self.language, self.style_guides["english"])
-        
         logger.info(f"✍️ Generating {self.language} script: {topic['topic'][:50]}...")
-        
-        # Build the prompt
         prompt = self._build_prompt(topic, style, duration_minutes)
         
-        # Generate with Groq
         try:
             response = self.client.chat.completions.create(
-                model="llama-3.3-70b-versatile",  # ✅ Correct free model
+                model="llama-3.3-70b-versatile",
                 messages=[
                     {
                         "role": "system", 
@@ -78,13 +75,10 @@ CRITICAL RULES:
             )
             
             script_text = response.choices[0].message.content
-            
-            # Humanize the script
             script_text = self._humanize(script_text)
             
-            # Calculate stats
             word_count = len(script_text.split())
-            estimated_duration = word_count / 150  # ~150 words per minute
+            estimated_duration = word_count / 150
             
             result = {
                 'topic': topic['topic'],
@@ -104,8 +98,6 @@ CRITICAL RULES:
             return {'topic': topic['topic'], 'script': '', 'error': str(e)}
     
     def _build_prompt(self, topic: Dict, style: Dict, duration: int) -> str:
-        """Build the writing prompt based on topic and style"""
-        
         return f"""Write a YouTube script about this topic:
 
 TOPIC: {topic['topic']}
@@ -129,11 +121,7 @@ IMPORTANT:
 START WRITING THE SCRIPT NOW:"""
     
     def _humanize(self, script: str) -> str:
-        """Add human imperfections to bypass AI detection"""
-        
         import random
-        
-        # Add natural fillers
         fillers = [
             "\n\n[chuckles] ",
             "\n\nWait, let me explain... ",
@@ -141,81 +129,41 @@ START WRITING THE SCRIPT NOW:"""
             "\n\nHere's what's crazy... ",
             "\n\n[pause] ",
         ]
-        
         lines = script.split('\n')
         humanized = []
-        
         for i, line in enumerate(lines):
             humanized.append(line)
-            # Add a filler every 3-5 paragraphs
             if i > 2 and i % random.randint(3, 5) == 0 and len(line) > 40:
                 humanized.append(random.choice(fillers))
-        
         return '\n'.join(humanized)
     
     def generate_multiple(self, topics: List[Dict], count: int = 3) -> List[Dict]:
-        """Generate scripts for multiple topics"""
         scripts = []
-        
         for topic in topics[:count]:
             script = self.generate_script(topic)
             if script and not script.get('error'):
                 scripts.append(script)
-        
         return scripts
 
 
-# ============================================
-# TEST THE MODULE
-# ============================================
 if __name__ == "__main__":
     print("\n" + "="*60)
     print("✍️  AI SCRIPT GENERATOR TEST")
     print("="*60)
     
-    # Test 1: English Script
-    print("\n📝 Generating English Script...")
-    print("-"*60)
-    
     gen = ScriptGenerator(language="english", niche="tech")
-    
     test_topic = {
         'topic': 'Google Pixel battery drain issues and how to fix them',
         'source': 'Reddit Trending',
         'score': 95
     }
-    
     result = gen.generate_script(test_topic, duration_minutes=5)
     
     if result.get('script'):
-        # Show first 500 characters
         preview = result['script'][:500]
         print(preview)
         print(f"\n... (Total: {result['word_count']} words, ~{result['estimated_duration_min']} min)")
     else:
         print(f"❌ Error: {result.get('error')}")
-    
-    print("\n" + "="*60)
-    
-    # Test 2: Urdu Script (Quick)
-    print("\n📝 Testing Urdu Script Generation...")
-    print("-"*60)
-    
-    gen_ur = ScriptGenerator(language="urdu", niche="tech")
-    
-    test_topic_ur = {
-        'topic': 'Pakistan main 5G technology ka aaghaz',
-        'source': 'Google Trends PK',
-        'score': 90
-    }
-    
-    result_ur = gen_ur.generate_script(test_topic_ur, duration_minutes=3)
-    
-    if result_ur.get('script'):
-        preview_ur = result_ur['script'][:300]
-        print(preview_ur)
-        print(f"\n... (Total: {result_ur['word_count']} words)")
-    else:
-        print(f"❌ Error: {result_ur.get('error')}")
     
     print("\n✅ Test Complete!")
