@@ -1,4 +1,3 @@
-# AI CONTENT FACTORY - Python 3.14 Compatible
 streamlit
 plotly
 groq==1.2.0
@@ -15,7 +14,6 @@ google-auth-httplib2
 requests
 beautifulsoup4
 yt-dlp
-googletrans==4.0.0rc1
 langdetect
 APScheduler
 schedule
